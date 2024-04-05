@@ -1,0 +1,52 @@
+import casa.*
+import cuentas.*
+import estrategiasAhorro.*
+
+test "Hacer que se rompa algo de 1000 pesos de la casa, 
+		aumentando el monto de reparación" {
+
+	casa.reparaciones(1000)
+	assert.equals(true, casa.viveresSuficientes())
+	assert.equals(true, casa.necesitaReparaciones())
+	assert.equals(false, casa.enOrden())
+}
+
+test "para una cuenta vacía con 20 pesos de costo por operación, 
+		si se deposita 1000 pesos, el saldo queda en 980 pesos" {
+	
+	cuentaConGastos.saldo(0)
+	cuentaConGastos.costoOperacion(20)
+	cuentaConGastos.deposito(1000)
+	assert.equals(980, cuentaConGastos.saldo())
+}
+
+test "la cuenta primaria es la cuenta con gastos con 50 pesos de costo de operación 
+		y la secundaria es la cuenta corriente, ya con 500 pesos de saldo"{
+	
+	cuentaCombinada.primaria(cuentaConGastos)
+	cuentaCombinada.primaria().costoOperacion(50)
+	cuentaCombinada.secundaria(cuentaCorriente)
+	cuentaCombinada.secundaria().saldo(500)
+	cuentaCombinada.deposito(100)
+	cuentaCombinada.extracto(200)
+	assert.equals(50, cuentaCombinada.primaria().saldo())
+	assert.equals(300, cuentaCombinada.secundaria().saldo())
+	assert.equals(350, cuentaCombinada.saldo())
+}
+
+test "la casa tiene 50% de los víveres, necesita 100 pesos para reparaciones, 
+		tiene asociada la cuenta corriente con 1000 pesos de saldo y una 
+		estrategia de ahorro Full"{
+			
+			casa.cantidadViveres(50)
+			casa.reparaciones(100)
+			casa.cuentaElegida(cuentaCorriente)
+			casa.cuentaElegida().saldo(1000)
+			casa.estrategiaAhorro(full)
+		//Si bien luego les alcanza para hacer las reparaciones, no sobrarían 1000 pesos, así que no se hacen.
+			assert.equals(false, casa.cuentaElegida().puedeReparar())
+		//Verificar que la casa queda con 90% de víveres, mantiene los 100 pesos para reparaciones, y la cuenta corriente queda con 800 pesos.
+			assert.equals(90, casa.cantidadViveres())
+			assert.equals(100, casa.reparaciones())
+			assert.equals(800, casa.cuentaElegida().saldo())
+}
